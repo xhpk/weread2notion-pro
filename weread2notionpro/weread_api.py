@@ -10,16 +10,24 @@ from urllib.parse import quote
 from dotenv import load_dotenv
 
 load_dotenv()
-WEREAD_URL = "https://weread.qq.com/"
-WEREAD_NOTEBOOKS_URL = "https://i.weread.qq.com/user/notebooks"
-WEREAD_BOOKMARKLIST_URL = "https://i.weread.qq.com/book/bookmarklist"
-WEREAD_CHAPTER_INFO = "https://i.weread.qq.com/book/chapterInfos"
-WEREAD_READ_INFO_URL = "https://i.weread.qq.com/book/readinfo"
-WEREAD_REVIEW_LIST_URL = "https://i.weread.qq.com/review/list"
-WEREAD_BOOK_INFO = "https://i.weread.qq.com/book/info"
-WEREAD_READDATA_DETAIL = "https://i.weread.qq.com/readdata/detail"
-WEREAD_HISTORY_URL = "https://i.weread.qq.com/readdata/summary?synckey=0"
+WEREAD_URL = "https://weread.qq.com"
+#书架接口
+BOOKSHELF_URL=WEREAD_URL+'/web/shelf/sync'
+#获取用户所有划线书籍
+WEREAD_NOTEBOOKS_URL = WEREAD_URL+'/api/user/notebook'
+#获取某本书籍划线
+WEREAD_BOOKMARKLIST_URL = WEREAD_URL+"/web/book/bookmarklist"
+#获取书籍信息
+WEREAD_BOOK_INFO = WEREAD_URL+"/api/book/info"
+#获取用户对某本书籍的评论/笔记
+WEREAD_REVIEW_LIST_URL =  WEREAD_URL+"/web/review/list"
+#获取章节信息
+WEREAD_CHAPTER_INFO = WEREAD_URL+"/web/book/chapterInfos"
+#获取书籍阅读进度
+WEREAD_READ_INFO_URL = WEREAD_URL+"/web/book/getProgress"
 
+WEREAD_HISTORY_URL = "https://i.weread.qq.com/readdata/summary?synckey=0"
+WEREAD_READDATA_DETAIL = "https://i.weread.qq.com/readdata/detail"
 
 class WeReadApi:
     def __init__(self):
@@ -56,6 +64,7 @@ class WeReadApi:
             cookie = self.try_get_cloud_cookie(url, id, password)
         if not cookie or not cookie.strip():
             raise Exception("没有找到cookie，请按照文档填写cookie")
+        print(cookie)
         return cookie
 
     def parse_cookie_string(self):
@@ -72,10 +81,11 @@ class WeReadApi:
         
         return cookiejar
 
+    #获取书架信息
     def get_bookshelf(self):
         self.session.get(WEREAD_URL)
         r = self.session.get(
-            "https://i.weread.qq.com/shelf/sync?synckey=0&teenmode=0&album=1&onlyBookid=0"
+            BOOKSHELF_URL
         )
         if r.ok:
             return r.json()
